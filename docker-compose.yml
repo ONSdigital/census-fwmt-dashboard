@@ -1,0 +1,19 @@
+version: '2'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: fwmt-rabbit
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  dashing:
+    container_name: fwmtdashing
+    image: eu.gcr.io/census-ci/census-fwmt-dashing
+    environment:
+      - ACTION_SERVICE_XSD_URL=
+      - RM_ADAPTER_XSD_URL=
+      - RABBIT_URL=docker_rabbitmq_1
+      - TM_SWAGGER_SPEC=
+      - LOCAL_TM_SWAGGER_SPEC=
+    ports:
+      - "3030:3030"
