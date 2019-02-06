@@ -1,15 +1,6 @@
-require 'bunny'
-require 'digest'
 require 'open-uri'
 require 'net/http'
 require 'httparty'
-require 'swagger/diff'
-
-ACTION_SERVICE_XSD_URL = ENV['ACTION_SERVICE_XSD_URL']
-RM_ADAPTER_XSD_URL     = ENV['RM_ADAPTER_XSD_URL']
-RABBIT_URL             = ENV['RABBIT_URL']
-TM_SWAGGER_SPEC        = ENV['TM_SWAGGER_SPEC']
-LOCAL_TM_SWAGGER_SPEC  = ENV['LOCAL_TM_SWAGGER_SPEC']
 
 RM_ADAPTER_HOSTNAME  = ENV['RM_ADAPTER_URL']  || 'fwmtgatewayrmadapter'
 JOB_SERVICE_HOSTNAME = ENV['JOB_SERVICE_URL'] || 'fwmtgatewayjobsvc'
