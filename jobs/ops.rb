@@ -11,8 +11,9 @@ LOCAL_TM_SWAGGER_SPEC = ENV['LOCAL_TM_SWAGGER_SPEC'] || 'https://raw.githubuserc
 
 RABBITMQ_HOSTNAME = ENV['RABBITMQ_HOSTNAME'] || 'rabbitmq'
 TM_HOSTNAME = ENV['TM_HOSTNAME'] || 'tm'
+TM_PORT = ENV['TM_PORT'] || '80'
 
-TM_SWAGGER_SPEC = 'https://' + ENV['TM_HOSTNAME'] + '/swagger/v1/swagger.json'
+TM_SWAGGER_SPEC = 'https://' + ENV['TM_HOSTNAME'] + ':' + TM_PORT + '/swagger/v1/swagger.json'
 
 ACTION_SERVICE_XSD = '/tmp/actionServiceXSD.xsd'
 RM_ADAPTER_XSD = '/tmp/rmAdapterXSD.xsd'
@@ -21,7 +22,7 @@ RM_ADAPTER_XSD = '/tmp/rmAdapterXSD.xsd'
 SCHEDULER.every '30s', :first_in => 0 do |job|
 
   #check size of DLQs
-  conn = Bunny.new(host: RABBITMQ_URL, port: '5672', vhost: '/', user: 'guest', password: 'guest')
+  conn = Bunny.new(host: RABBITMQ_HOSTNAME, port: '5672', vhost: '/', user: 'guest', password: 'guest')
   conn.start
   ch = conn.create_channel
   dlq1 = ch.queue("gateway.actions.DLQ", durable: true)
@@ -33,7 +34,6 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   dlq4 = ch.queue("rm.feedback.DLQ", durable: true)
   send_event('rabbitmq_queues_4', { name: "rm.feedback.DLQ", count: dlq4.message_count })
 
-
   #check MD5 for XSD files
   File.open(ACTION_SERVICE_XSD, "w+") { |f| f.write HTTParty.get(ACTION_SERVICE_XSD_URL).body }
   File.open(RM_ADAPTER_XSD, "w+") { |f| f.write HTTParty.get(RM_ADAPTER_XSD_URL).body }
@@ -42,6 +42,5 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   # Check Swagger specs
   diff = Swagger::Diff::Diff.new(LOCAL_TM_SWAGGER_SPEC, TM_SWAGGER_SPEC)
   send_event('compare_swagger_files', { value: diff.compatible? })
-
 
 end
