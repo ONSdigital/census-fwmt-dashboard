@@ -45,32 +45,59 @@ RM_ADAPTER_QUEUES = [
   'Gateway.Actions',
 ]
 
-SCHEDULER.every '30s', :first_in => 0 do |job|
-  rmadapter_alive = HTTParty.get(RM_ADAPTER_INFO_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}) && true rescue false
-  jobsvc_alive = HTTParty.get(JOB_SERVICE_INFO_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}) && true rescue false
+def send_rmadapter_status(alive = true)
   send_event('rmadapter_alive', {
-               title: rmadapter_alive ? "RM Adapter Alive" : "RM Adapter Dead",
-               aliveness: rmadapter_alive,
+               title: alive ? "RM Adapter Alive" : "RM Adapter Dead",
+               isDead: !alive,
              })
-  send_event('jobsvc_alive', {
-               title: rmadapter_alive ? "Job Service Alive" : "Job Service Dead",
-               aliveness: jobsvc_alive,
-             })
+end
 
-  rmadapter_queues = JSON.parse(HTTParty.get(RM_ADAPTER_QUEUES_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}).body)
-  jobsvc_queues = JSON.parse(HTTParty.get(JOB_SERVICE_QUEUES_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}).body)
-  rmadapter_queues_missing = RM_ADAPTER_QUEUES - rmadapter_queues
-  rmadapter_queues_ok = rmadapter_queues_missing.empty?
-  jobsvc_queues_missing = JOB_SERVICE_QUEUES - jobsvc_queues
-  jobsvc_queues_ok = rmadapter_queues_missing.empty?
+def send_jobsvc_status(alive = true)
+  send_event('jobsvc_alive', {
+               title: alive ? "Job Service Alive" : "Job Service Dead",
+               isDead: !alive,
+             })
+end
+
+def queue_missing_message(missing = [])
+  missing.empty? ? "" : "Missing: " + missing.join(", ")
+end
+
+def send_rmadapter_queue_status(alive = true, missing = [])
   send_event('rmadapter_queues', {
-               title: rmadapter_queues_ok ? "RM Adapter Queues Accessible" : "RM Adapter Queues Inaccessible",
-               missing: !rmadapter_queues_ok,
-               missingText: rmadapter_queues_missing.to_s,
+               title: (alive && missing.empty?) ? "RM Adapter Queues Accessible" : "RM Adapter Queues Inaccessible",
+               isDead: !alive || !missing.empty?,
+               missingText: alive ? queue_missing_message(missing) : "RM Adapter Dead",
              })
+end
+
+def send_jobsvc_queue_status(alive = true, missing = [])
   send_event('jobsvc_queues', {
-               title: jobsvc_queues_ok ? "Job Service Queues Accessible" : "Job Service Queues Inaccessible",
-               missing: !jobsvc_queues_ok,
-               missingText: jobsvc_queues_missing.to_s,
+               title: (alive && missing.empty?) ? "Job Service Queues Accessible" : "Job Service Queues Inaccessible",
+               isDead: !alive || !missing.empty?,
+               missingText: alive ? queue_missing_message(missing) : "Job Service Dead",
              })
+end
+
+SCHEDULER.every '30s', :first_in => 0 do |job|
+
+  rmadapter_alive = HTTParty.get(RM_ADAPTER_INFO_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}) && true rescue false
+  send_rmadapter_status(rmadapter_alive)
+  if rmadapter_alive
+    rmadapter_queues = JSON.parse(HTTParty.get(RM_ADAPTER_QUEUES_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}).body)
+    rmadapter_queues_missing = RM_ADAPTER_QUEUES - rmadapter_queues
+    send_rmadapter_queue_status(alive=true, missing=rmadapter_queues_missing)
+  else
+    send_rmadapter_queue_status(alive=false)
+  end
+
+  jobsvc_alive = HTTParty.get(JOB_SERVICE_INFO_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}) && true rescue false
+  send_jobsvc_status(jobsvc_alive)
+  if jobsvc_alive
+    jobsvc_queues = JSON.parse(HTTParty.get(JOB_SERVICE_QUEUES_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}).body)
+    jobsvc_queues_missing = JOB_SERVICE_QUEUES - jobsvc_queues
+    send_jobsvc_queue_status(alive=true, missing=jobsvc_queues_missing)
+  else
+    send_jobsvc_queue_status(alive=false)
+  end
 end
