@@ -15,35 +15,13 @@ JOB_SERVICE_PASSWORD = ENV['JOB_SERVICE_PASSWORD'] || ''
 RM_ADAPTER_INFO_URL = 'http://' + RM_ADAPTER_HOSTNAME + ':' + RM_ADAPTER_PORT + '/info'
 JOB_SERVICE_INFO_URL = 'http://' + JOB_SERVICE_HOSTNAME + ':' + JOB_SERVICE_PORT + '/info'
 
-RM_ADAPTER_QUEUES_URL = 'http://' + RM_ADAPTER_HOSTNAME + ':' + RM_ADAPTER_PORT + '/rabbitHealth'
-JOB_SERVICE_QUEUES_URL = 'http://' + JOB_SERVICE_HOSTNAME + ':' + JOB_SERVICE_PORT + '/rabbitHealth'
+RM_ADAPTER_HEALTH_URL = 'http://' + RM_ADAPTER_HOSTNAME + ':' + RM_ADAPTER_PORT + '/health'
+JOB_SERVICE_HEALTH_URL = 'http://' + JOB_SERVICE_HOSTNAME + ':' + JOB_SERVICE_PORT + '/health'
 
 RM_ADAPTER_AUTH = {:username => RM_ADAPTER_USERNAME, :password => RM_ADAPTER_PASSWORD}
 JOB_SERVICE_AUTH = {:username => JOB_SERVICE_USERNAME, :password => JOB_SERVICE_PASSWORD}
 
 TIMEOUT = 3
-
-JOB_SERVICE_QUEUES = [
-  # 'gateway.feedback',
-  # 'gateway.feedback.DLQ',
-  # 'gateway.actions',
-  # 'gateway.actions.DLQ',
-  'Gateway.Feedback',
-  'Gateway.Actions',
-  'Gateway.ActionsDLQ',
-]
-
-RM_ADAPTER_QUEUES = [
-  # 'gateway.feedback',
-  # 'gateway.feedback.DLQ',
-  # 'gateway.actions',
-  # 'gateway.actions.DLQ',
-  # 'rm.feedback',
-  # 'rm.feedback.DLQ',
-  'Action.Field',
-  'Action.FieldDLQ',
-  'Gateway.Actions',
-]
 
 def send_rmadapter_status(alive = true)
   send_event('rmadapter_alive', {
@@ -80,12 +58,12 @@ def send_jobsvc_queue_status(alive = true, missing = [])
 end
 
 SCHEDULER.every '30s', :first_in => 0 do |job|
-
   rmadapter_alive = HTTParty.get(RM_ADAPTER_INFO_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}) && true rescue false
   send_rmadapter_status(rmadapter_alive)
   if rmadapter_alive
-    rmadapter_queues = JSON.parse(HTTParty.get(RM_ADAPTER_QUEUES_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}).body)
-    rmadapter_queues_missing = RM_ADAPTER_QUEUES - rmadapter_queues
+    rmadapter_health = JSON.parse(HTTParty.get(RM_ADAPTER_HEALTH_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}).body)
+    rmadapter_queues = rmadapter_health["details"]["rabbitQueues"]["details"]["accessible-queues"]
+    rmadapter_queues_missing = rmadapter_queues.select { |key, value| !value }.map { |key, value| key }
     send_rmadapter_queue_status(alive=true, missing=rmadapter_queues_missing)
   else
     send_rmadapter_queue_status(alive=false)
@@ -94,8 +72,9 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   jobsvc_alive = HTTParty.get(JOB_SERVICE_INFO_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}) && true rescue false
   send_jobsvc_status(jobsvc_alive)
   if jobsvc_alive
-    jobsvc_queues = JSON.parse(HTTParty.get(JOB_SERVICE_QUEUES_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}).body)
-    jobsvc_queues_missing = JOB_SERVICE_QUEUES - jobsvc_queues
+    jobsvc_health = JSON.parse(HTTParty.get(JOB_SERVICE_HEALTH_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}).body)
+    jobsvc_queues = jobsvc_health["details"]["rabbitQueues"]["details"]["accessible-queues"]
+    jobsvc_queues_missing = jobsvc_queues.select { |key, value| !value }.map { |key, value| key }
     send_jobsvc_queue_status(alive=true, missing=jobsvc_queues_missing)
   else
     send_jobsvc_queue_status(alive=false)
