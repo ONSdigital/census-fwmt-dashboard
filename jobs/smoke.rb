@@ -23,8 +23,6 @@ JOB_SERVICE_AUTH = {:username => JOB_SERVICE_USERNAME, :password => JOB_SERVICE_
 
 TIMEOUT = 3
 
-# Example message: {"status":"DOWN","details":{"rabbitQueues":{"status":"DOWN","details":{"accessible-queues":{"Gateway.Actions":true,"Gateway.ActionsDLQ":true}}},"rabbit":{"status":"UP","details":{"version":"3.7.10"}},"diskSpace":{"status":"UP","details":{"total":105152176128,"free":8378634240,"threshold":10485760}}}}
-
 def send_rmadapter_status(alive = true)
   send_event('rmadapter_alive', {
                title: alive ? "RM Adapter Alive" : "RM Adapter Dead",
@@ -60,13 +58,12 @@ def send_jobsvc_queue_status(alive = true, missing = [])
 end
 
 SCHEDULER.every '30s', :first_in => 0 do |job|
-
   rmadapter_alive = HTTParty.get(RM_ADAPTER_INFO_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}) && true rescue false
   send_rmadapter_status(rmadapter_alive)
   if rmadapter_alive
     rmadapter_health = JSON.parse(HTTParty.get(RM_ADAPTER_HEALTH_URL, {timeout: TIMEOUT, basic_auth: RM_ADAPTER_AUTH}).body)
-    # fetch queues here
-    rmadapter_queues_missing = RM_ADAPTER_QUEUES - rmadapter_queues
+    rmadapter_queues = rmadapter_health["details"]["rabbitQueues"]["details"]["accessible-queues"]
+    rmadapter_queues_missing = rmadapter_queues.select { |key, value| !value }.map { |key, value| key }
     send_rmadapter_queue_status(alive=true, missing=rmadapter_queues_missing)
   else
     send_rmadapter_queue_status(alive=false)
@@ -76,8 +73,8 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   send_jobsvc_status(jobsvc_alive)
   if jobsvc_alive
     jobsvc_health = JSON.parse(HTTParty.get(JOB_SERVICE_HEALTH_URL, {timeout: TIMEOUT, basic_auth: JOB_SERVICE_AUTH}).body)
-    # fetch queues here
-    jobsvc_queues_missing = JOB_SERVICE_QUEUES - jobsvc_queues
+    jobsvc_queues = jobsvc_health["details"]["rabbitQueues"]["details"]["accessible-queues"]
+    jobsvc_queues_missing = jobsvc_queues.select { |key, value| !value }.map { |key, value| key }
     send_jobsvc_queue_status(alive=true, missing=jobsvc_queues_missing)
   else
     send_jobsvc_queue_status(alive=false)
