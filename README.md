@@ -1,4 +1,4 @@
-Check out http://shopify.github.com/dashing for more information.# fwmt-census-dashboard
+Check out http://shopify.github.com/dashing for more information.# census-fwmt-dashboard
 
 To Run
 
