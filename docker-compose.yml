@@ -15,5 +15,7 @@ services:
       - RABBIT_URL=docker_rabbitmq_1
       - TM_SWAGGER_SPEC=
       - LOCAL_TM_SWAGGER_SPEC=
+      - REPORT_FILE=
+      - REPORT_FILE_LOCATION=
     ports:
       - "3030:3030"
