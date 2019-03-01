@@ -29,10 +29,10 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   send_event('rabbitmq_queues_1', { name: "gateway.actions.DLQ", count: dlq1.message_count })
   dlq2 = ch.queue("Action.FieldDLQ", durable: true)
   send_event('rabbitmq_queues_2', { name: "Action.FieldDLQ", count: dlq2.message_count })
-  dlq3 = ch.queue("gateway.feedback.DLQ", durable: true)
-  send_event('rabbitmq_queues_3', { name: "gateway.feedback.DLQ", count: dlq3.message_count })
-  dlq4 = ch.queue("rm.feedback.DLQ", durable: true)
-  send_event('rabbitmq_queues_4', { name: "rm.feedback.DLQ", count: dlq4.message_count })
+  dlq3 = ch.queue("Gateway.OutcomeDLQ", durable: true)
+  send_event('rabbitmq_queues_3', { name: "Gateway.OutcomeDLQ", count: dlq3.message_count })
+  dlq4 = ch.queue("rm.outcome.DLQ", durable: true)
+  send_event('rabbitmq_queues_4', { name: "rm.outcome.DLQ", count: dlq4.message_count })
 
   #check MD5 for XSD files
   File.open(ACTION_SERVICE_XSD, "w+") { |f| f.write HTTParty.get(ACTION_SERVICE_XSD_URL).body }
