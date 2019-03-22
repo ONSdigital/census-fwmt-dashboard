@@ -1,4 +1,6 @@
 require 'dashing'
+require "google/cloud/storage"
+
 
 configure do
   set :auth_token, 'YOUR_AUTH_TOKEN'

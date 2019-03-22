@@ -1,14 +1,34 @@
 require 'rubygems'
 require 'json'
+require "google-cloud-storage"
 
-REPORT_FILE          = ENV['REPORT_FILE'] || 'cucumber-report.json'
-REPORT_FILE_LOCATION = ENV['REPORT_FILE_LOCATION'] || 'http://localhost:9292'
+
+
+if !ENV['GCP_DASHBOARD_KEYCONTENTS'].nil?
+  File.open("gcs_dashboard_keyfile.json", "w") do |f|
+    f.write(ENV['GCP_DASHBOARD_KEYCONTENTS'])
+  end
+ GCP_DASHBOARD_KEYFILE = 'gcs_dashboard_keyfile.json'
+else
+  GCP_DASHBOARD_KEYFILE = '../keyfile/gcs_dashboard_keyfile.json'
+end
 
 # :first_in sets how long it takes before the job is first run. In this case, it is run immediately
-SCHEDULER.every '5s', :first_in => 0 do |job|
+SCHEDULER.every '60s', :first_in => 0 do |job|
 
-  #json = File.read('cucumber-report.json')
-  parsed = JSON.parse(HTTParty.get(REPORT_FILE_LOCATION+"/"+REPORT_FILE).body)
+  storage = Google::Cloud::Storage.new(
+    project_id: "census-fwmt-ci-233109",
+    credentials: GCP_DASHBOARD_KEYFILE
+  )
+
+  bucket = storage.bucket "census-fwmt-acceptance-tests"
+  file = bucket.file "cucumber-report.json"
+
+  # Download the file to the local file system
+  file.download "public/cucumber-report.json"
+
+  json = File.read('public/cucumber-report.json')
+  parsed = JSON.parse(json)
 
   event_count = 1
   parsed[0]['elements'].each do |element|
