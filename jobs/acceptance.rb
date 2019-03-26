@@ -32,18 +32,19 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
 
   event_count = 1
   parsed[0]['elements'].each do |element|
-    status = element['before'][0]['result']['status']
-    scenario = ''
-    error = ''
-    if status == 'failed'
-      scenario = element['name']
-      error = element['before'][0]['result']['error_message']
-    else
-      scenario = element['name']
-      error = "OK"
+    scenario = element['name']
+    step_name = 'Steps Pass'
+    error = 'OK'
+    scenario_status = 'OK'
+    element['steps'].each do |test_element|
+      status = test_element['result']['status']
+      if status == 'failed'
+        step_name = test_element['name']
+        error = test_element['result']['error_message']
+        scenario_status = status
+      end
     end
-    send_event('cucumber_status_' + event_count.to_s, { status: status, scenario: scenario, error: error.slice(0..100)})
-
+    send_event('cucumber_status_' + event_count.to_s, { status: scenario_status, scenario: scenario, step: step_name, error: error.slice(0..100)})
     event_count += 1
   end
 end
