@@ -13,7 +13,7 @@ RABBITMQ_HOSTNAME = ENV['RABBITMQ_HOSTNAME'] || 'rabbitmq'
 TM_HOSTNAME = ENV['TM_HOSTNAME'] || 'tm'
 TM_PORT = ENV['TM_PORT'] || '80'
 
-TM_SWAGGER_SPEC = 'https://' + TM_HOSTNAME + ':' + TM_PORT + '/swagger/v1/swagger.json'
+TM_SWAGGER_SPEC = "https://#{TM_HOSTNAME}:#{TM_PORT}/swagger/v1/swagger.json"
 
 ACTION_SERVICE_XSD = '/tmp/actionServiceXSD.xsd'
 RM_ADAPTER_XSD = '/tmp/rmAdapterXSD.xsd'
@@ -25,14 +25,12 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   conn = Bunny.new(host: RABBITMQ_HOSTNAME, port: '5672', vhost: '/', user: 'guest', password: 'guest')
   conn.start
   ch = conn.create_channel
-  dlq1 = ch.queue("gateway.actions.DLQ", durable: true)
-  send_event('rabbitmq_queues_1', { name: "gateway.actions.DLQ", count: dlq1.message_count })
+  dlq1 = ch.queue("Gateway.ActionsDLQ", durable: true)
+  send_event('rabbitmq_queues_1', { name: "Gateway.ActionsDLQ", count: dlq1.message_count })
   dlq2 = ch.queue("Action.FieldDLQ", durable: true)
   send_event('rabbitmq_queues_2', { name: "Action.FieldDLQ", count: dlq2.message_count })
-  dlq3 = ch.queue("Gateway.OutcomeDLQ", durable: true)
-  send_event('rabbitmq_queues_3', { name: "Gateway.OutcomeDLQ", count: dlq3.message_count })
-  dlq4 = ch.queue("rm.outcome.DLQ", durable: true)
-  send_event('rabbitmq_queues_4', { name: "rm.outcome.DLQ", count: dlq4.message_count })
+  dlq2 = ch.queue("Gateway.OutcomeDLQ", durable: true)
+  send_event('rabbitmq_queues_3', { name: "Gateway.OutcomeDLQ", count: dlq2.message_count })
 
   #check MD5 for XSD files
   File.open(ACTION_SERVICE_XSD, "w+") { |f| f.write HTTParty.get(ACTION_SERVICE_XSD_URL).body }
