@@ -13,7 +13,7 @@ RABBITMQ_HOSTNAME = ENV['RABBITMQ_HOSTNAME'] || 'rabbitmq'
 TM_HOSTNAME = ENV['TM_HOSTNAME'] || 'tm'
 TM_PORT = ENV['TM_PORT'] || '80'
 
-TM_SWAGGER_SPEC = 'https://' + TM_HOSTNAME + ':' + TM_PORT + '/swagger/v1/swagger.json'
+TM_SWAGGER_SPEC = "https://#{TM_HOSTNAME}:#{TM_PORT}/swagger/v1/swagger.json"
 
 ACTION_SERVICE_XSD = '/tmp/actionServiceXSD.xsd'
 RM_ADAPTER_XSD = '/tmp/rmAdapterXSD.xsd'
