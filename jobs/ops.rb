@@ -6,8 +6,8 @@ require 'httparty'
 require 'swagger/diff'
 
 ACTION_SERVICE_XSD_URL = ENV['ACTION_SERVICE_XSD_URL'] || 'https://raw.githubusercontent.com/ONSdigital/rm-actionsvc-api/master/src/main/resources/actionsvc/xsd/actionInstruction.xsd'
-RM_ADAPTER_XSD_URL = ENV['RM_ADAPTER_XSD_URL'] || 'https://raw.githubusercontent.com/ONSdigital/fwmt-census-rm-adapter/master/src/main/resources/xsd/actionInstruction.xsd'
-LOCAL_TM_SWAGGER_SPEC = ENV['LOCAL_TM_SWAGGER_SPEC'] || 'https://raw.githubusercontent.com/ONSdigital/fwmt-census-job-service/master/src/main/resources/tm-swagger.json'
+RM_ADAPTER_XSD_URL = ENV['RM_ADAPTER_XSD_URL'] || 'https://raw.githubusercontent.com/ONSdigital/census-fwmt-rm-adapter/master/src/main/resources/xsd/actionInstruction.xsd'
+LOCAL_TM_SWAGGER_SPEC = ENV['LOCAL_TM_SWAGGER_SPEC'] || 'https://raw.githubusercontent.com/ONSdigital/census-fwmt-job-service/master/src/main/resources/tm-swagger.json'
 
 RABBITMQ_HOSTNAME = ENV['RABBITMQ_HOSTNAME'] || 'rabbitmq'
 TM_HOSTNAME = ENV['TM_HOSTNAME'] || 'tm'
