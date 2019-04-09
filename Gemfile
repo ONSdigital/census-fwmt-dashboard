@@ -7,6 +7,4 @@ gem 'swagger-diff'
 gem 'execjs'
 gem 'therubyracer'
 gem 'google-cloud-storage'
-
-## Remove this if you don't need a twitter widget.
-gem 'twitter', '>= 5.9.0'
+gem 'rack', ">=1.6.11"
