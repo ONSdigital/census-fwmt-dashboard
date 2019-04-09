@@ -25,14 +25,12 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   conn = Bunny.new(host: RABBITMQ_HOSTNAME, port: '5672', vhost: '/', user: 'guest', password: 'guest')
   conn.start
   ch = conn.create_channel
-  dlq1 = ch.queue("gateway.actions.DLQ", durable: true)
-  send_event('rabbitmq_queues_1', { name: "gateway.actions.DLQ", count: dlq1.message_count })
+  dlq1 = ch.queue("Gateway.ActionsDLQ", durable: true)
+  send_event('rabbitmq_queues_1', { name: "Gateway.ActionsDLQ", count: dlq1.message_count })
   dlq2 = ch.queue("Action.FieldDLQ", durable: true)
   send_event('rabbitmq_queues_2', { name: "Action.FieldDLQ", count: dlq2.message_count })
-  dlq3 = ch.queue("gateway.feedback.DLQ", durable: true)
-  send_event('rabbitmq_queues_3', { name: "gateway.feedback.DLQ", count: dlq3.message_count })
-  dlq4 = ch.queue("rm.feedback.DLQ", durable: true)
-  send_event('rabbitmq_queues_4', { name: "rm.feedback.DLQ", count: dlq4.message_count })
+  dlq2 = ch.queue("Gateway.OutcomeDLQ", durable: true)
+  send_event('rabbitmq_queues_3', { name: "Gateway.OutcomeDLQ", count: dlq2.message_count })
 
   #check MD5 for XSD files
   File.open(ACTION_SERVICE_XSD, "w+") { |f| f.write HTTParty.get(ACTION_SERVICE_XSD_URL).body }
