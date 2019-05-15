@@ -1,29 +1,19 @@
-<script>
-  //window.cukereport = '{{ env('REPORT_FILE') }}';
-  window.cukereport = 'cucumber-report.json';
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.onreadystatechange = function() {
-  if (this.readyState == 4 && this.status == 200) {
-    var report = JSON.parse(this.responseText);
-    document.getElementById("elementcount").innerHTML = report[0].elements.length;
-    var ul=document.createElement('ul');
-    var count = parseInt(document.getElementById("elementcount").innerHTML) + 1
-    for(i=1;i<count;i++)
-    {
-        var li=document.createElement('li');
-        li.setAttribute('data-row', '1')
-        li.setAttribute('data-col', '1')
-        li.setAttribute('data-sizex', '1')
-        li.setAttribute('data-sizey', '1')
-        li.innerHTML="<div data-id='cucumber_status_"+ i +"' data-view='Cucumber' data-addclass-danger='cukeFailure'></div>"
-        ul.appendChild(li);
-    }
-    document.getElementById('cucumber-report').appendChild(ul);
-  }
-};
-xmlhttp.open("GET", "/" + window.cukereport, true);
-xmlhttp.send();
-</script>
+<%
+def template
+  cucumber_report_div = '<div class="gridster"><ul>'
 
-<p id="elementcount" style="display: none;" />
-<div id="cucumber-report" class="gridster"></div>
+  json = File.read('public/report/cucumber-report.json')
+  parsed = JSON.parse(json)
+  li_count = 1
+  parsed[0]['elements'].each do |element|
+    scenario = element['name']
+    cucumber_report_div += "<li data-row='1' data-col='#{li_count.to_s}' data-sizex='1' data-sizey='1'>"
+    cucumber_report_div += "<div data-id='cucumber_status_#{li_count.to_s}' data-view='Cucumber' data-addclass-danger='cukeFailure'></div></li>"
+    li_count += 1
+  end
+  cucumber_report_div += '</ul></div>'
+  return cucumber_report_div
+end
+%>
+
+<%= template %>

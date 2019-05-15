@@ -25,9 +25,9 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
   file = bucket.file "cucumber-report.json"
 
   # Download the file to the local file system
-  file.download "public/cucumber-report.json"
+  file.download "public/report/cucumber-report.json"
 
-  json = File.read('public/cucumber-report.json')
+  json = File.read('public/report/cucumber-report.json')
   parsed = JSON.parse(json)
 
   event_count = 1
@@ -36,15 +36,22 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
     step_name = 'Steps Pass'
     error = 'OK'
     scenario_status = 'OK'
-    element['steps'].each do |test_element|
-      status = test_element['result']['status']
-      if status == 'failed'
-        step_name = test_element['name']
-        error = test_element['result']['error_message']
-        scenario_status = status
+    element_status = element['before'][0]['result']['status']
+    if element_status == 'failed'
+      step_name = 'no steps run'
+      error = element['before'][0]['result']['error_message']
+      scenario_status = element_status
+    else
+      element['steps'].each do |test_element|
+        status = test_element['result']['status']
+        if status == 'failed'
+          step_name = test_element['name']
+          error = test_element['result']['error_message']
+          scenario_status = status
+        end
       end
     end
-    send_event('cucumber_status_' + event_count.to_s, { status: scenario_status, scenario: scenario, step: step_name, error: error.slice(0..100)})
+    send_event('cucumber_status_' + event_count.to_s, { status: scenario_status, scenario: scenario, step: step_name, error: error.slice(0..60)})
     event_count += 1
   end
 end
