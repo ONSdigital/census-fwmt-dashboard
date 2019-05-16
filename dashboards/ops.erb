@@ -1,23 +1,35 @@
+<% content_for :title do %>Operations<% end %>
 <div class="gridster">
     <ul>
+        <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+            <div data-id="rabbitmq_queue_actionDLQ"
+                 data-view="FWMTQueues"
+                 data-queue="Gateway.ActionsDLQ"></div>
+        </li>
+
+        <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
+            <div data-id="rabbitmq_queue_fieldDLQ"
+                 data-view="FWMTQueues"
+                 data-queue="Action.FieldDLQ"
+                 data-addclass-danger="isTooHigh"></div>
+        </li>
+
+        <li data-row="1" data-col="3" data-sizex="1" data-sizey="1">
+            <div data-id="rabbitmq_queue_outcomeDLQ"
+                 data-view="FWMTQueues"
+                 data-queue="Gateway.OutcomeDLQ"></div>
+        </li>
 
         <li data-row="2" data-col="1" data-sizex="1" data-sizey="1">
-            <div data-id="compare_xsd_files" data-view="Compare" data-addclass-danger="md5Fail" data-title="XSD File Check"></div>
+            <div data-id="compare_xsd_files"
+                 data-view="FWMTBoolean"
+                 data-title="XSD File Check"></div>
         </li>
 
         <li data-row="2" data-col="2" data-sizex="1" data-sizey="1">
-            <div data-id="compare_swagger_files" data-view="Compare" data-addclass-danger="md5Fail" data-title="Swagger File Check"></div>
+            <div data-id="compare_swagger_files"
+                 data-view="FWMTBoolean"
+                 data-title="Swagger File Check"></div>
         </li>
-
-        <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
-            <div data-id="rabbitmq_queues_1" data-view="Queues" data-addclass-danger="isTooHigh"></div>
-        </li>
-        <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
-            <div data-id="rabbitmq_queues_2" data-view="Queues" data-addclass-danger="isTooHigh"></div>
-        </li>
-        <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
-            <div data-id="rabbitmq_queues_3" data-view="Queues" data-addclass-danger="isTooHigh"></div>
-        </li>
-
     </ul>
 </div>

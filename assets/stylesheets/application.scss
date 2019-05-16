@@ -8,13 +8,17 @@
 $background-color: #222;
 $text-color: #fff;
 
-$background-warning-color-1: #e82711;
-$background-warning-color-2: #9b2d23;
+$background-warning-color-1: #eeae32;
+$background-warning-color-2: #ff9618;
 $text-warning-color: #fff;
 
-$background-danger-color-1: #eeae32;
-$background-danger-color-2: #ff9618;
+$background-danger-color-1: #e82711;
+$background-danger-color-2: #9b2d23;
 $text-danger-color: #fff;
+
+$background-fatal-color-1: #974fc1;
+$background-fatal-color-2: #222;
+$text-fatal-color: #fff;
 
 @-webkit-keyframes status-warning-background {
   0%   { background-color: $background-warning-color-1; }
@@ -25,6 +29,11 @@ $text-danger-color: #fff;
   0%   { background-color: $background-danger-color-1; }
   50%  { background-color: $background-danger-color-2; }
   100% { background-color: $background-danger-color-1; }
+}
+@-webkit-keyframes status-fatal-background {
+    0%   { background-color: $background-fatal-color-1; }
+    50%  { background-color: $background-fatal-color-2; }
+    100% { background-color: $background-fatal-color-1; }
 }
 @mixin animation($animation-name, $duration, $function, $animation-iteration-count:""){
   -webkit-animation:  $animation-name $duration $function #{$animation-iteration-count};
@@ -151,7 +160,15 @@ h3 {
   vertical-align: middle;
 }
 
-.widget.status-warning {
+.widget .widget-inner {
+    text-align: inherit;
+    width: inherit;
+    height: inherit;
+    display: inherit;
+    vertical-align: inherit;
+}
+
+.widget.status-warning, .widget-inner.status-warning {
   background-color: $background-warning-color-1;
   @include animation(status-warning-background, 2s, ease, infinite);
 
@@ -164,7 +181,7 @@ h3 {
   }
 }
 
-.widget.status-danger {
+.widget.status-danger, .widget-inner.status-danger {
   color: $text-danger-color;
   background-color: $background-danger-color-1;
   @include animation(status-danger-background, 2s, ease, infinite);
@@ -176,6 +193,20 @@ h3 {
   .title, .more-info {
     color: $text-danger-color;
   }
+}
+
+.widget.status-fatal, .widget-inner.status-fatal {
+    color: $text-fatal-color;
+    background-color: $background-fatal-color-1;
+    @include animation(status-fatal-background, 2s, ease, infinite);
+
+    .icon-warning-sign {
+        display: inline-block;
+    }
+
+    .title, .more-info {
+        color: $text-fatal-color;
+    }
 }
 
 .more-info {
