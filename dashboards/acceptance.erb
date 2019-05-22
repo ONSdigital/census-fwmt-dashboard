@@ -10,7 +10,7 @@ def template
     parsed[0]['elements'].each do |element|
         scenario = element['name']
         cucumber_report_div += "<li data-row='1' data-col='#{li_count.to_s}' data-sizex='1' data-sizey='1'>"
-        cucumber_report_div += "<div data-id='cucumber_status_#{li_count.to_s}' data-view='Cucumber'></div></li>"
+        cucumber_report_div += "<div data-id='cucumber_status_#{li_count.to_s}' data-view='FWMTCucumber'></div></li>"
         li_count += 1
     end
     cucumber_report_div += '</ul></div>'
