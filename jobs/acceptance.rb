@@ -57,9 +57,9 @@ def fetch_report
   file = bucket.file 'cucumber-report.json'
 
   # Download the file to the local file system
-  file.download 'public/report/cucumber-report.json'
+  file.download 'public/reports/cucumber-report.json'
 
-  JSON.parse(File.read('public/report/cucumber-report.json'))
+  JSON.parse(File.read('public/reports/cucumber-report.json'))
 end
 
 SCHEDULER.every '60s', first_in: 0 do |_|

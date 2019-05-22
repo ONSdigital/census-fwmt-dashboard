@@ -4,7 +4,7 @@
 def template
     cucumber_report_div = '<div class="gridster"><ul>'
 
-    json = File.read('public/report/cucumber-report.json')
+    json = File.read('public/reports/cucumber-report.json')
     parsed = JSON.parse(json)
     li_count = 1
     parsed[0]['elements'].each do |element|
