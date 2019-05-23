@@ -1,1 +1,8 @@
+.widget-queue-stats {
+    background-color: #049117;
+    color: rgba(255, 255, 255, 0.7);
 
+    &.large h3 {
+        font-size: 65px;
+    }
+}

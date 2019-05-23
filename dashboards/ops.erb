@@ -3,32 +3,37 @@
     <ul>
         <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
             <div data-id="rabbitmq_queue_actionDLQ"
-                 data-view="FWMTQueues"
-                 data-queue="Gateway.ActionsDLQ"></div>
+                 data-view="QueueStats"
+                 data-queue-name="Gateway.ActionsDLQ"
+                 data-max-safe-count="0"
+            ></div>
         </li>
 
         <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
             <div data-id="rabbitmq_queue_fieldDLQ"
-                 data-view="FWMTQueues"
-                 data-queue="Action.FieldDLQ"
-                 data-addclass-danger="isTooHigh"></div>
+                 data-view="QueueStats"
+                 data-queue-name="Action.FieldDLQ"
+                 data-max-safe-count="0"
+            ></div>
         </li>
 
         <li data-row="1" data-col="3" data-sizex="1" data-sizey="1">
             <div data-id="rabbitmq_queue_outcomeDLQ"
-                 data-view="FWMTQueues"
-                 data-queue="Gateway.OutcomeDLQ"></div>
+                 data-view="QueueStats"
+                 data-queue-name="Gateway.OutcomeDLQ"
+                 data-max-safe-count="0"
+            ></div>
         </li>
 
         <li data-row="2" data-col="1" data-sizex="1" data-sizey="1">
             <div data-id="compare_xsd_files"
-                 data-view="FWMTBoolean"
+                 data-view="Text"
                  data-title="XSD File Check"> </div>
         </li>
 
         <li data-row="2" data-col="2" data-sizex="1" data-sizey="1">
             <div data-id="compare_swagger_files"
-                 data-view="FWMTBoolean"
+                 data-view="Text"
                  data-title="Swagger File Check"></div>
         </li>
     </ul>
