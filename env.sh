@@ -1,11 +1,14 @@
-#!/bin/sh
-
-# ops
+# ops -> xsd compare
 #export ACTION_SERVICE_XSD_URL=""
 #export RM_ADAPTER_XSD_URL=""
-#export LOCAL_TM_SWAGGER_SPEC=""
+
+# ops -> swagger
 export TM_HOSTNAME="localhost"
-export TM_PORT="9099"
+export TM_PORT="8000"
+#export TM_SWAGGER_SPEC=""
+#export LOCAL_TM_SWAGGER_SPEC=""
+
+# ops -> queues
 export RABBITMQ_HOSTNAME="localhost"
 
 # smoke tests

@@ -1,16 +1,20 @@
+<% content_for :title do %>Smoke Tests<% end %>
 <div class="gridster">
     <ul>
         <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
-            <div data-id="rmadapter_alive" data-view="ServiceAlive" data-addclass-danger="isDead"></div>
+            <div data-id="rmadapter_alive" data-view="Text" data-title="RM Adapter Status"></div>
         </li>
+
         <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
-            <div data-id="rmadapter_queues" data-view="QueueMatch" data-addclass-danger="isDead"></div>
+            <div data-id="rmadapter_queues" data-view="Text" data-title="RM Adapter Queues"></div>
         </li>
+
         <li data-row="1" data-col="3" data-sizex="1" data-sizey="1">
-            <div data-id="jobsvc_alive" data-view="ServiceAlive" data-addclass-danger="isDead"></div>
+            <div data-id="jobsvc_alive" data-view="Text" data-title="Job Service Status"></div>
         </li>
+
         <li data-row="1" data-col="4" data-sizex="1" data-sizey="1">
-            <div data-id="jobsvc_queues" data-view="QueueMatch" data-addclass-danger="isDead"></div>
+            <div data-id="jobsvc_queues" data-view="Text" data-title="Job Service Queues"></div>
         </li>
     </ul>
 </div>

@@ -1,57 +1,87 @@
+# frozen_string_literal: true
+
 require 'rubygems'
 require 'json'
-require "google-cloud-storage"
-
-
+require 'google/cloud/storage'
 
 if !ENV['GCP_DASHBOARD_KEYCONTENTS'].nil?
-  File.open("gcs_dashboard_keyfile.json", "w") do |f|
+  File.open('gcs_dashboard_keyfile.json', 'w') do |f|
     f.write(ENV['GCP_DASHBOARD_KEYCONTENTS'])
   end
- GCP_DASHBOARD_KEYFILE = 'gcs_dashboard_keyfile.json'
+  GCP_DASHBOARD_KEYFILE = 'gcs_dashboard_keyfile.json'
 else
   GCP_DASHBOARD_KEYFILE = '../keyfile/gcs_dashboard_keyfile.json'
 end
 
-# :first_in sets how long it takes before the job is first run. In this case, it is run immediately
-SCHEDULER.every '60s', :first_in => 0 do |job|
+def send_pass_event(id, scenario_element)
+  send_event(id,
+             status: 'OK',
+             scenario: scenario_element['name'],
+             step: 'Steps Pass',
+             error: 'OK')
+end
 
+def send_fail_scenario_event(id, scenario_element)
+  result = scenario_element['before'][0]['result']
+  send_event(id,
+             status: result['status'],
+             scenario: scenario_element['name'],
+             step: 'no steps run',
+             error: result['error_message'].slice(0..60))
+end
+
+def send_fail_test_event(id, scenario_element, test_element)
+  send_event(id,
+             status: test_element['result']['status'],
+             scenario: scenario_element['name'],
+             step: test_element['name'],
+             error: test_element['result']['error_message'].slice(0..60))
+end
+
+def send_fatal_event(id)
+  send_event(id,
+             status: 'Fatal Error',
+             scenario: 'Unknown',
+             step: 'Fatal Error',
+             error: 'Inspect Log',
+             fatal: true)
+end
+
+def fetch_report
   storage = Google::Cloud::Storage.new(
-    project_id: "census-fwmt-ci-233109",
+    project_id: 'census-fwmt-ci-233109',
     credentials: GCP_DASHBOARD_KEYFILE
   )
 
-  bucket = storage.bucket "census-fwmt-acceptance-tests"
-  file = bucket.file "cucumber-report.json"
+  bucket = storage.bucket 'census-fwmt-acceptance-tests'
+  file = bucket.file 'cucumber-report.json'
 
   # Download the file to the local file system
-  file.download "public/report/cucumber-report.json"
+  file.download 'public/reports/cucumber-report.json'
 
-  json = File.read('public/report/cucumber-report.json')
-  parsed = JSON.parse(json)
+  JSON.parse(File.read('public/reports/cucumber-report.json'))
+end
 
-  event_count = 1
-  parsed[0]['elements'].each do |element|
-    scenario = element['name']
-    step_name = 'Steps Pass'
-    error = 'OK'
-    scenario_status = 'OK'
-    element_status = element['before'][0]['result']['status']
-    if element_status == 'failed'
-      step_name = 'no steps run'
-      error = element['before'][0]['result']['error_message']
-      scenario_status = element_status
-    else
-      element['steps'].each do |test_element|
-        status = test_element['result']['status']
-        if status == 'failed'
-          step_name = test_element['name']
-          error = test_element['result']['error_message']
-          scenario_status = status
+SCHEDULER.every '60s', first_in: 0 do |_|
+  report = fetch_report
+  report[0]['elements'].each_with_index do |element, index|
+    id = "cucumber_status_#{index + 1}"
+    begin
+      if element['before'][0]['result']['status'] == 'failed'
+        send_fail_scenario_event(id, element)
+        break
+      else
+        element['steps'].each do |test_element|
+          if test_element['result']['status'] == 'failed'
+            send_fail_test_event(id, element, test_element)
+            break
+          end
         end
       end
+      send_pass_event(id, element)
+    rescue StandardError
+      send_fatal_event(id)
+      raise
     end
-    send_event('cucumber_status_' + event_count.to_s, { status: scenario_status, scenario: scenario, step: step_name, error: error.slice(0..60)})
-    event_count += 1
   end
 end

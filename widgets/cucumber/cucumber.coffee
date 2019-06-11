@@ -9,4 +9,4 @@ class Dashing.Cucumber extends Dashing.Widget
     # Example: $(@node).fadeOut().fadeIn() will make the node flash each time data comes in.
 
   @accessor 'cukeFailure', ->
-    @get('status') == "failed"
+    @get('status') == 'failed'
